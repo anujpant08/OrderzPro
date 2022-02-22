@@ -1,3 +1,3 @@
 # OrderzPro
 
-An app to consolidate all your orders from various e-commerce sites into one place.
+An app to consolidate all your orders from various e-commerce websites into one place.
