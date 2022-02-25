@@ -1,10 +1,13 @@
-package com.minimaldev.android.orderzpro;
+package com.minimaldev.android.orderzpro.viewmodel;
 
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.minimaldev.android.orderzpro.MailReadAsyncTask;
+import com.minimaldev.android.orderzpro.MailsListInterface;
 
 import java.util.List;
 import java.util.Properties;
