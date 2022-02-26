@@ -9,13 +9,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.minimaldev.android.orderzpro.model.Mail;
 import com.minimaldev.android.orderzpro.viewmodel.MailReadViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    List<String> list = new ArrayList<>();
+    List<Mail> list = new ArrayList<>();
     private final String TAG = getClass().getSimpleName();
 
     @Override
@@ -29,9 +30,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(mailRecyclerAdapter);
         MailReadViewModel mailReadViewModel = new ViewModelProvider(this).get(MailReadViewModel.class);
-        mailReadViewModel.getMails().observe(this, new Observer<List<String>>() {
+        mailReadViewModel.getMails().observe(this, new Observer<List<Mail>>() {
             @Override
-            public void onChanged(List<String> newList) {
+            public void onChanged(List<Mail> newList) {
                 //Log.e(TAG, "Inside onChanged(): " + newList);
                 list.clear();
                 list.addAll(newList);
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void populateList() {
+    /*private void populateList() {
         list.add("hello");
         list.add("world");
         list.add("name");
@@ -49,5 +50,5 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, list.toString());
         MailReadViewModel mailReadViewModel = new MailReadViewModel();
 
-    }
+    }*/
 }

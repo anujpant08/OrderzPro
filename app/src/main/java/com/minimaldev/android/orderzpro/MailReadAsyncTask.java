@@ -7,7 +7,6 @@ import com.minimaldev.android.orderzpro.model.Mail;
 
 import org.jsoup.Jsoup;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,10 +16,8 @@ import java.util.regex.Pattern;
 
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
-import javax.mail.FetchProfile;
 import javax.mail.Folder;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
@@ -28,12 +25,16 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.search.SearchTerm;
 
 public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
-    private final List<String> mails = new ArrayList<>();
+    private final List<Mail> mails = new ArrayList<>();
     private final String TAG = getClass().getSimpleName();
     static Pattern msgSubjectPattern = null;
     static Matcher msgSubjectMatcher = null;
-    static Pattern msgBodyPattern = null;
-    static Matcher msgBodyMatcher = null;
+    static Pattern orderDetailsPattern = null;
+    static Matcher orderDetailsMatcher = null;
+    static Pattern deliveryExpectedDatePattern = null;
+    static Matcher deliveryExpectedDateMatcher = null;
+    static Pattern paymentModeDeliverAddressPattern = null;
+    static Matcher paymentModeDeliverAddressMatcher = null;
     private MailsListInterface mailsListInterface = null;
     public MailReadAsyncTask(MailsListInterface mailsListInterface) {
         this.mailsListInterface = mailsListInterface;
@@ -42,8 +43,7 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         try {
-            msgSubjectPattern = Pattern.compile("(Order\\s+)", Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
-            msgBodyPattern = Pattern.compile("Order no\\.:\\s+[^\\s]+\\s([\\w\\s]+)Size:\\s+([^\\s]+)\\s+Qty:\\s+([^\\s]+).+Delivery\\s+Address\\s+(.+)\\s+Billing.+Total\\s+(.+)\\s+Mode\\s+of\\s+Payment\\s+(\\w+)", Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+            loadPatterns();
             Properties props = new Properties();
             props.put("mail.smtp.host", "smtp.gmail.com");
             props.put("mail.smtp.socketFactory.port", "465");
@@ -54,7 +54,7 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
             Session session = Session.getDefaultInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("anujpant.work@gmail.com", "chelsea997");
+                    return new PasswordAuthentication("UNAME", "PWD");
                 }
             });
 
@@ -68,31 +68,19 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
             Message[] messages = inbox.search(new SearchTerm() {
                 @Override
                 public boolean match(Message msg) {
-                    //TODO: Add search criteria regex (or some other way) to search for online orders.
                     try {
                         msgSubjectMatcher = msgSubjectPattern.matcher(msg.getSubject());
                         if(msgSubjectMatcher.find()){
-                            Mail extractedMail = new Mail();
-                            mails.add(msg.getSubject());
                             if(msg.isMimeType("text/plain")){
-                                //TODO: Apply regex to message body
                                 String body = msg.getContent().toString();
+                                applyRegexExtractData(msg, body);
                             }else if(msg.isMimeType("multipart/*")) {
                                 MimeMultipart mimeMultipart = (MimeMultipart) msg.getContent();
                                 String messageBody = getTextFromMimeMultipart(mimeMultipart);
-                                //TODO: Apply regex to message body
                                 String textFromHtml = html2text(messageBody);
-                                msgBodyMatcher = msgBodyPattern.matcher(textFromHtml);
-                                if(msgBodyMatcher.find()){
-                                    extractedMail.setDescription(msgBodyMatcher.group(1));
-                                    extractedMail.setProductSize(msgBodyMatcher.group(2));
-                                    extractedMail.setQuantity(Integer.parseInt(Objects.requireNonNull(msgBodyMatcher.group(3))));
-                                    extractedMail.setDeliveryAddress(msgBodyMatcher.group(4));
-                                    extractedMail.setPrice(msgBodyMatcher.group(5));
-                                    extractedMail.setPaymentMode(msgBodyMatcher.group(6));
-                                }
+                                applyRegexExtractData(msg, textFromHtml);
                             }
-                            Log.e(TAG, "Mail extracted: " + extractedMail);
+                            Log.e(TAG, "Mail extracted: " + mails);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "An exception has occurred: ", e);
@@ -101,15 +89,15 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
                 }
             });
 
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.ENVELOPE);
-            fp.add(FetchProfile.Item.CONTENT_INFO);
-            inbox.fetch(messages, fp);
-
-            for (Message message : messages) {
-                //Log.e(TAG, "Message: " + message);
-                mails.add(message.getSubject());
-            }
+//            FetchProfile fp = new FetchProfile();
+//            fp.add(FetchProfile.Item.ENVELOPE);
+//            fp.add(FetchProfile.Item.CONTENT_INFO);
+//            inbox.fetch(messages, fp);
+//
+//            for (Message message : messages) {
+//                //Log.e(TAG, "Message: " + message);
+//                mails.add(message.getSubject());
+//            }
             //Log.e(TAG, "List is: " + mails);
         } catch (Exception e) {
             Log.e(TAG, "An exception occurred: ", e);
@@ -117,13 +105,45 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
+    private void loadPatterns() {
+        msgSubjectPattern = Pattern.compile("(Order\\s+)", Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+        orderDetailsPattern = Pattern.compile("-\\s+-[^\\w]+([^\\.-]+)[^-]+-\\s+Size\\s+(\\w+)[^\\w]+Qty\\s+(\\w+)\\s+-\\s+([^\\s]+)", Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+        deliveryExpectedDatePattern = Pattern.compile("Delivery\\s+by\\s+(\\w+,\\s+\\w+\\s+\\w+)", Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+        paymentModeDeliverAddressPattern = Pattern.compile("Paid\\s+by\\s+(.+)Delivering\\s+at\\s+(.+\\d{6}+)", Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
+    }
+
+    private void applyRegexExtractData(Message msg, String mailBody) throws Exception{
+        String orderedOnDate = msg.getHeader("Date")[0];
+        String expectedDeliveryDate = "";
+        orderDetailsMatcher = orderDetailsPattern.matcher(mailBody);
+        deliveryExpectedDateMatcher = deliveryExpectedDatePattern.matcher(mailBody);
+        paymentModeDeliverAddressMatcher = paymentModeDeliverAddressPattern.matcher(mailBody);
+        if(deliveryExpectedDateMatcher.find()){
+            expectedDeliveryDate = deliveryExpectedDateMatcher.group(1);
+        }
+        while(orderDetailsMatcher.find()){
+            Mail extractedMail = new Mail();
+            extractedMail.setOrderedOnDate(orderedOnDate);
+            extractedMail.setDescription(orderDetailsMatcher.group(1));
+            extractedMail.setProductSize(orderDetailsMatcher.group(2));
+            extractedMail.setQuantity(Integer.parseInt(Objects.requireNonNull(orderDetailsMatcher.group(3))));
+            extractedMail.setPrice(orderDetailsMatcher.group(4));
+            extractedMail.setExpectedDeliveryDate(expectedDeliveryDate);
+            extractedMail.setSourceName("Myntra"); // TODO: Remove hardcoding source
+            if(paymentModeDeliverAddressMatcher.find()){
+                extractedMail.setPaymentMode(paymentModeDeliverAddressMatcher.group(1));
+                extractedMail.setDeliveryAddress(paymentModeDeliverAddressMatcher.group(2));
+            }
+            mails.add(extractedMail);
+        }
+    }
+
     @Override
     protected void onPostExecute(Void unused) {
         super.onPostExecute(unused);
         mailsListInterface.populateList(mails);
     }
-    private String getTextFromMimeMultipart(
-            MimeMultipart mimeMultipart)  throws MessagingException, IOException {
+    private String getTextFromMimeMultipart(MimeMultipart mimeMultipart)  throws Exception {
         String result = "";
         int count = mimeMultipart.getCount();
         for (int i = 0; i < count; i++) {
