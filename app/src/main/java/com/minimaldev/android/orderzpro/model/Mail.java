@@ -13,6 +13,7 @@ public class Mail {
     String orderedOnDate;
     String paymentMode;
     int quantity;
+    boolean isDelivered = false;
 
     public String getDescription() {
         return description;
@@ -94,6 +95,14 @@ public class Mail {
         this.productSize = productSize;
     }
 
+    public boolean isDelivered() {
+        return isDelivered;
+    }
+
+    public void setDelivered(boolean delivered) {
+        isDelivered = delivered;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -108,6 +117,7 @@ public class Mail {
                 ", orderedOnDate='" + orderedOnDate + '\'' +
                 ", paymentMode='" + paymentMode + '\'' +
                 ", quantity=" + quantity +
+                ", isDelivered=" + isDelivered +
                 '}';
     }
 }

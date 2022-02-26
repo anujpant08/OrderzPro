@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.minimaldev.android.orderzpro.MailReadAsyncTask;
 import com.minimaldev.android.orderzpro.MailsListInterface;
+import com.minimaldev.android.orderzpro.model.Mail;
 
 import java.util.List;
 import java.util.Properties;
@@ -24,8 +25,8 @@ import javax.mail.search.FlagTerm;
 
 public class MailReadViewModel extends ViewModel implements MailsListInterface {
     private final String TAG = getClass().getSimpleName();
-    private MutableLiveData<List<String>> mails;
-    public LiveData<List<String>> getMails(){
+    private MutableLiveData<List<Mail>> mails;
+    public LiveData<List<Mail>> getMails(){
         if(mails == null){
             mails = new MutableLiveData<>();
             loadMails();
@@ -38,7 +39,7 @@ public class MailReadViewModel extends ViewModel implements MailsListInterface {
     }
 
     @Override
-    public void populateList(List<String> mails) {
+    public void populateList(List<Mail> mails) {
         this.mails.postValue(mails);
         //Log.e(TAG, "Inside populateList()");
     }
