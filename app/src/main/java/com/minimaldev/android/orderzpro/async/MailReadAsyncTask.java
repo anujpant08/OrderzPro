@@ -1,10 +1,11 @@
-package com.minimaldev.android.orderzpro;
+package com.minimaldev.android.orderzpro.async;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.minimaldev.android.orderzpro.MailsListInterface;
 import com.minimaldev.android.orderzpro.model.Mail;
 
 import org.jsoup.Jsoup;
@@ -108,7 +109,7 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
         return Session.getDefaultInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("Uname", "Pwd");
+                return new PasswordAuthentication("uname", "pwd");
             }
         });
     }
