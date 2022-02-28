@@ -1,31 +1,32 @@
 package com.minimaldev.android.orderzpro.viewmodel;
 
-import android.util.Log;
+import android.app.Application;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
-import com.minimaldev.android.orderzpro.MailReadAsyncTask;
+import com.minimaldev.android.orderzpro.async.DatabaseIOAsync;
+import com.minimaldev.android.orderzpro.async.MailReadAsyncTask;
 import com.minimaldev.android.orderzpro.MailsListInterface;
+import com.minimaldev.android.orderzpro.dao.MailModelDao;
+import com.minimaldev.android.orderzpro.database.MailDatabase;
 import com.minimaldev.android.orderzpro.model.Mail;
 
 import java.util.List;
-import java.util.Properties;
 
-import javax.mail.Authenticator;
-import javax.mail.FetchProfile;
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.search.FlagTerm;
-
-public class MailReadViewModel extends ViewModel implements MailsListInterface {
+public class MailReadViewModel extends AndroidViewModel implements MailsListInterface {
     private final String TAG = getClass().getSimpleName();
+    private MailModelDao mailModelDao;
     private MutableLiveData<List<Mail>> mails;
+
+    public MailReadViewModel(@NonNull Application application) {
+        super(application);
+        initializeDB(application);
+    }
+
+
     public LiveData<List<Mail>> getMails(){
         if(mails == null){
             mails = new MutableLiveData<>();
@@ -33,6 +34,12 @@ public class MailReadViewModel extends ViewModel implements MailsListInterface {
         }
         return mails;
     }
+
+    private void initializeDB(Application application) {
+        // Get instance of MailModelDao using MailDatabase.
+        mailModelDao = MailDatabase.getMailDatabase(application).mailModelDao();
+    }
+
     private void loadMails(){
         MailReadAsyncTask mailReadAsyncTask = new MailReadAsyncTask(this);
         mailReadAsyncTask.execute();
@@ -40,6 +47,8 @@ public class MailReadViewModel extends ViewModel implements MailsListInterface {
 
     @Override
     public void populateList(List<Mail> mails) {
+        DatabaseIOAsync databaseIOAsync = new DatabaseIOAsync(mailModelDao, mails);
+        databaseIOAsync.execute();
         this.mails.postValue(mails);
         //Log.e(TAG, "Inside populateList()");
     }
