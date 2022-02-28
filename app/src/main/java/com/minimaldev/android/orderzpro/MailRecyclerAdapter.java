@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.minimaldev.android.orderzpro.model.Mail;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MailRecyclerAdapter extends RecyclerView.Adapter<MailRecyclerAdapter.MailViewHolder> {
     private final String TAG = getClass().getSimpleName();
@@ -40,7 +41,7 @@ public class MailRecyclerAdapter extends RecyclerView.Adapter<MailRecyclerAdapte
             holder.mailPrice.setText(currentMail.getPrice().trim());
             holder.mailQuantity.setText("Qty " + currentMail.getQuantity());
             holder.mailDeliveryDate.setText(currentMail.isDelivered() ? currentMail.getDeliveredDate().trim() : currentMail.getExpectedDeliveryDate().trim());
-            holder.mailPaymentMode.setText(currentMail.getPaymentMode().trim());
+            holder.mailPaymentMode.setText(currentMail.getPaymentMode() != null && !currentMail.getPaymentMode().equals("") ? currentMail.getPaymentMode().trim() : "Payment Mode");
         } catch(Exception e){
             Log.e(TAG, "An exception has occurred: ", e);
         }
