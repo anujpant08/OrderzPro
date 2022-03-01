@@ -3,24 +3,25 @@ package com.minimaldev.android.orderzpro.async;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.minimaldev.android.orderzpro.DatabaseOperationsHelper;
 import com.minimaldev.android.orderzpro.dao.MailModelDao;
 import com.minimaldev.android.orderzpro.model.Mail;
 
 import java.util.List;
 
-public class DatabaseIOAsync extends AsyncTask<Void, Void, Void> {
+public class WriteDatabaseIOAsync extends AsyncTask<Void, Void, Void> {
     private final String TAG = getClass().getSimpleName();
-    MailModelDao mailModelDao;
+    DatabaseOperationsHelper databaseOperationsHelper;
     List<Mail> mails;
-    public DatabaseIOAsync(MailModelDao mailModelDao, List<Mail> mails) {
-        this.mailModelDao = mailModelDao;
+    public WriteDatabaseIOAsync(DatabaseOperationsHelper databaseOperationsHelper, List<Mail> mails) {
+        this.databaseOperationsHelper = databaseOperationsHelper;
         this.mails = mails;
     }
 
     @Override
     protected Void doInBackground(Void... voids) {
         for(Mail mail: mails){
-            mailModelDao.insertMail(mail);
+            databaseOperationsHelper.addMail(mail);
             Log.e(TAG, "Mail added to DB: " + mail);
         }
         return null;
