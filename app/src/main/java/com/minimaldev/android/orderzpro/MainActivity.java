@@ -1,5 +1,6 @@
 package com.minimaldev.android.orderzpro;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -7,8 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.util.Log;
 
+import com.minimaldev.android.orderzpro.dao.MailModelDao;
+import com.minimaldev.android.orderzpro.database.MailDatabase;
 import com.minimaldev.android.orderzpro.model.Mail;
 import com.minimaldev.android.orderzpro.viewmodel.MailReadViewModel;
 
@@ -18,17 +20,40 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     List<Mail> list = new ArrayList<>();
     private final String TAG = getClass().getSimpleName();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //populateList();
+        MailRecyclerAdapter mailRecyclerAdapter = getMailRecyclerAdapter();
+        //DB Read operation
+        readMailsFromDB(mailRecyclerAdapter);
+        //DB Write operation
+
+
+//        MailWriteViewModel mailWriteViewModel = new ViewModelProvider(this).get(MailWriteViewModel.class);
+//        mailWriteViewModel.getMails().observe(this, new Observer<List<Mail>>() {
+//            @Override
+//            public void onChanged(List<Mail> newList) {
+//                //Log.e(TAG, "Inside onChanged(): " + newList);
+//                list.clear();
+//                list.addAll(newList);
+//                mailRecyclerAdapter.notifyDataSetChanged();
+//            }
+//        });
+    }
+
+    @NonNull
+    private MailRecyclerAdapter getMailRecyclerAdapter() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         MailRecyclerAdapter mailRecyclerAdapter = new MailRecyclerAdapter(this, list);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(mailRecyclerAdapter);
+        return mailRecyclerAdapter;
+    }
+
+    private void readMailsFromDB(MailRecyclerAdapter mailRecyclerAdapter) {
         MailReadViewModel mailReadViewModel = new ViewModelProvider(this).get(MailReadViewModel.class);
         mailReadViewModel.getMails().observe(this, new Observer<List<Mail>>() {
             @Override
