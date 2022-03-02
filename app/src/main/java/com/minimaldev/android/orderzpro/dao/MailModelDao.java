@@ -13,17 +13,21 @@ import java.util.List;
 
 @Dao
 public interface MailModelDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert
     public void insertMail(Mail mail);
 
     @Query("select * from mail_table order by 1 desc")
     public LiveData<List<Mail>> getMails();
 
+    @Query("select * from mail_table where description = :description and ordered_on_date = :orderedOnDate and quantity = :quantity")
+    public List<Mail> getMailsByDescOrderedOnDateQty(String description, String orderedOnDate, Integer quantity);
+
+    @Update
+    public void updateMail(Mail mail);
+
 //    @Query("select * from mail_table where is_delivered = :isDelivered")
 //    public LiveData<List<Mail>> getMailsByDeliveryStatus(boolean isDelivered);
 //
-//    @Query("select * from mail_table where mail_id = :mailID")
-//    LiveData<List<Mail>> getMailsById(int mailID);
 //
 //    @Update
 //    public Integer updateMailsList(List<Mail> mails);

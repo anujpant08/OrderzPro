@@ -6,6 +6,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Entity(tableName = "mail_table")
 public class Mail {
@@ -155,5 +156,18 @@ public class Mail {
                 ", quantity=" + quantity +
                 ", isDelivered=" + isDelivered +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Mail mail = (Mail) o;
+        return quantity == mail.quantity && description.equals(mail.description) && orderedOnDate.equals(mail.orderedOnDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(description, orderedOnDate, quantity);
     }
 }

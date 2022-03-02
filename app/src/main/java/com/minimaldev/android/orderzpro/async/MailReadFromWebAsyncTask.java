@@ -29,7 +29,7 @@ import javax.mail.Store;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.search.SearchTerm;
 
-public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
+public class MailReadFromWebAsyncTask extends AsyncTask<Void, Void, Void> {
     private final List<Mail> mails = new ArrayList<>();
     private final String TAG = getClass().getSimpleName();
     static Pattern msgSubjectPattern = null;
@@ -45,7 +45,7 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
     static Pattern sourceNamePattern = null;
     static Matcher sourceNameMatcher = null;
     private MailsListInterface mailsListInterface = null;
-    public MailReadAsyncTask(MailsListInterface mailsListInterface) {
+    public MailReadFromWebAsyncTask(MailsListInterface mailsListInterface) {
         this.mailsListInterface = mailsListInterface;
     }
 
@@ -109,7 +109,7 @@ public class MailReadAsyncTask extends AsyncTask<Void, Void, Void> {
         return Session.getDefaultInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("uname", "pwd");
+                return new PasswordAuthentication("anujpant.work@gmail.com", "chelsea997");
             }
         });
     }

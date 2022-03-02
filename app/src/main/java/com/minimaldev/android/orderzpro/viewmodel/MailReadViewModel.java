@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.minimaldev.android.orderzpro.DatabaseOperationsHelper;
-import com.minimaldev.android.orderzpro.async.MailReadAsyncTask;
 import com.minimaldev.android.orderzpro.dao.MailModelDao;
 import com.minimaldev.android.orderzpro.database.MailDatabase;
 import com.minimaldev.android.orderzpro.model.Mail;
