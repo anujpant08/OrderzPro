@@ -40,13 +40,22 @@ public class MailRecyclerAdapter extends RecyclerView.Adapter<MailRecyclerAdapte
             holder.mailSource.setText(currentMail.getSourceName().trim());
             holder.mailPrice.setText(currentMail.getPrice().trim());
             holder.mailQuantity.setText("Qty " + currentMail.getQuantity());
-            holder.mailDeliveryDate.setText(currentMail.isDelivered() ? currentMail.getDeliveredDate().trim() : currentMail.getExpectedDeliveryDate().trim());
+            holder.mailDeliveryDate.setText(currentMail.isDelivered() ? "Delivered on " + currentMail.getDeliveredDate().trim() : currentMail.getExpectedDeliveryDate().trim());
             holder.mailPaymentMode.setText(currentMail.getPaymentMode() != null && !currentMail.getPaymentMode().equals("") ? currentMail.getPaymentMode().trim() : "Payment Mode");
         } catch(Exception e){
             Log.e(TAG, "An exception has occurred: ", e);
         }
     }
-
+    public List<Mail> getMails(){
+        return this.mails;
+    }
+    public void clearItems(){
+        notifyItemRangeRemoved(0, getItemCount());
+    }
+    public void refreshItems(List<Mail> mails){
+        this.mails = mails;
+        notifyDataSetChanged();
+    }
     @Override
     public int getItemCount() {
         return this.mails.size();

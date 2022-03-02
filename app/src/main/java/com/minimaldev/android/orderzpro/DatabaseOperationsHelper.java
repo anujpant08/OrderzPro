@@ -2,6 +2,7 @@ package com.minimaldev.android.orderzpro;
 
 import androidx.lifecycle.LiveData;
 
+import com.minimaldev.android.orderzpro.async.WriteDatabaseIOAsync;
 import com.minimaldev.android.orderzpro.dao.MailModelDao;
 import com.minimaldev.android.orderzpro.model.Mail;
 
@@ -17,7 +18,11 @@ public class DatabaseOperationsHelper {
         mails = mailModelDao.getMails();
         return mails;
     }
-    public void addMail(Mail mail){
-        mailModelDao.insertMail(mail);
+    public void addMail(List<Mail> mails){
+        WriteDatabaseIOAsync writeDatabaseIOAsync = new WriteDatabaseIOAsync(mailModelDao, this, mails);
+        writeDatabaseIOAsync.execute();
+    }
+    public void updateMail(Mail mail){
+        mailModelDao.updateMail(mail);
     }
 }

@@ -9,20 +9,20 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.minimaldev.android.orderzpro.DatabaseOperationsHelper;
 import com.minimaldev.android.orderzpro.MailsListInterface;
-import com.minimaldev.android.orderzpro.async.MailReadAsyncTask;
+import com.minimaldev.android.orderzpro.async.MailReadFromWebAsyncTask;
 import com.minimaldev.android.orderzpro.dao.MailModelDao;
 import com.minimaldev.android.orderzpro.database.MailDatabase;
 import com.minimaldev.android.orderzpro.model.Mail;
 
 import java.util.List;
 
-public class MailWriteViewModel extends AndroidViewModel implements MailsListInterface {
+public class WebEmailReadModel extends AndroidViewModel implements MailsListInterface {
     private final String TAG = getClass().getSimpleName();
     private MailModelDao mailModelDao;
     private MutableLiveData<List<Mail>> mails;
     private static DatabaseOperationsHelper databaseOperationsHelper;
 
-    public MailWriteViewModel(@NonNull Application application) {
+    public WebEmailReadModel(@NonNull Application application) {
         super(application);
         initializeDB(application);
         databaseOperationsHelper = new DatabaseOperationsHelper(mailModelDao);
@@ -30,8 +30,8 @@ public class MailWriteViewModel extends AndroidViewModel implements MailsListInt
     public LiveData<List<Mail>> getMails(){
         if(mails == null){
             mails = new MutableLiveData<>();
-            loadMails();
         }
+        loadMails();
         return mails;
     }
     private void initializeDB(Application application) {
@@ -40,8 +40,8 @@ public class MailWriteViewModel extends AndroidViewModel implements MailsListInt
     }
 
     private void loadMails(){
-        MailReadAsyncTask mailReadAsyncTask = new MailReadAsyncTask(this);
-        mailReadAsyncTask.execute();
+        MailReadFromWebAsyncTask mailReadFromWebAsyncTask = new MailReadFromWebAsyncTask(this);
+        mailReadFromWebAsyncTask.execute();
 //        databaseOperationsHelper.readMails().observe(application.get, new Observer<List<Mail>>() {
 //            @Override
 //            public void onChanged(List<Mail> mail) {
@@ -54,14 +54,12 @@ public class MailWriteViewModel extends AndroidViewModel implements MailsListInt
 
     @Override
     public void populateList(List<Mail> mails) {
-//        WriteDatabaseIOAsync writeDatabaseIOAsync = new WriteDatabaseIOAsync(databaseOperationsHelper, mails);
-//        writeDatabaseIOAsync.execute();
-
+        databaseOperationsHelper.addMail(mails);
         //Inserting mails to DB.
-        for(Mail mail : mails){
-            databaseOperationsHelper.addMail(mail);
-        }
-        this.mails.postValue(mails);
+//        for(Mail mail : mails){
+//            databaseOperationsHelper.addMail(mail);
+//        }
+        //this.mails.postValue(mails);
         //Log.e(TAG, "Inside populateList()");
     }
 }

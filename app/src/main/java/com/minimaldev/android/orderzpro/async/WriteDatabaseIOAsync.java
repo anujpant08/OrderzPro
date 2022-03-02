@@ -12,18 +12,28 @@ import java.util.List;
 public class WriteDatabaseIOAsync extends AsyncTask<Void, Void, Void> {
     private final String TAG = getClass().getSimpleName();
     DatabaseOperationsHelper databaseOperationsHelper;
+    MailModelDao mailModelDao;
     List<Mail> mails;
-    public WriteDatabaseIOAsync(DatabaseOperationsHelper databaseOperationsHelper, List<Mail> mails) {
+    public WriteDatabaseIOAsync(MailModelDao mailModelDao, DatabaseOperationsHelper databaseOperationsHelper, List<Mail> mails) {
+        this.mailModelDao = mailModelDao;
         this.databaseOperationsHelper = databaseOperationsHelper;
         this.mails = mails;
     }
-
     @Override
     protected Void doInBackground(Void... voids) {
         for(Mail mail: mails){
-            databaseOperationsHelper.addMail(mail);
-            Log.e(TAG, "Mail added to DB: " + mail);
+            if(!isMailInDB(mail)){
+                mailModelDao.insertMail(mail);
+                Log.e(TAG, "Mail added to DB: " + mail);
+            }else{
+                Log.e(TAG, "Row already exists in the DB!");
+            }
         }
         return null;
+    }
+
+    private boolean isMailInDB(Mail mail) {
+        List<Mail> mailHitsInDB = mailModelDao.getMailsByDescOrderedOnDateQty(mail.getDescription(), mail.getOrderedOnDate(), mail.getQuantity());
+        return mailHitsInDB != null && !mailHitsInDB.isEmpty();
     }
 }
