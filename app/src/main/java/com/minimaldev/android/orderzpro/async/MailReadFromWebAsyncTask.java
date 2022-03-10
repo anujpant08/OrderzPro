@@ -109,7 +109,7 @@ public class MailReadFromWebAsyncTask extends AsyncTask<Void, Void, Void> {
         return Session.getDefaultInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("anujpant.work@gmail.com", "chelsea997");
+                return new PasswordAuthentication("Uname", "Pwd");
             }
         });
     }
